@@ -22,7 +22,7 @@ export function buildProductWhatsAppUrl(
   product: { name: string; code: string },
   selectedOptions?: Record<string, string>,
   quantity: number = 1,
-  whatsappNumber: string = "92312345678",
+  whatsappNumber: string = "923483498745",
 ): string {
   const optionsText =
     selectedOptions && Object.keys(selectedOptions).length > 0
