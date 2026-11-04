@@ -1,0 +1,8 @@
+{
+  "name": "Tayyab Shahzad Jewellers",
+  "description": "Exclusive bridal jewellery, gold, Pakistani Chandi, Italian designs, and bespoke custom orders by Tayyab Shahzad Jewellers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
