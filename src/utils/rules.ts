@@ -54,7 +54,7 @@ export function buildBagWhatsAppUrl(
   items: BagItem[],
   customer: { name: string; phone: string; city?: string },
   referenceCode: string,
-  whatsappNumber: string = "92312345678",
+  whatsappNumber: string = "923483498745",
 ): string {
   const itemsText = items
     .map((item, idx) => {
@@ -99,7 +99,7 @@ export function buildCustomOrderWhatsAppUrl(
     phone: string;
   },
   referenceCode: string,
-  whatsappNumber: string = "92312345678",
+  whatsappNumber: string = "923483498745",
 ): string {
   const text = [
     `Assalam-o-Alaikum Tayyab Shahzad Jewellers,`,
