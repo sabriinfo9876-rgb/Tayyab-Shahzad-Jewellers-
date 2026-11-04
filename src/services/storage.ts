@@ -86,14 +86,11 @@ export const DemoStorage = {
       INITIAL_SETTINGS,
     );
     // Auto-migrate to requested dummy number if still on previous number
-    if (
-      settings.whatsappNumber === "923483498745" ||
-      !settings.whatsappNumber
-    ) {
-      settings.whatsappNumber = "92312345678";
-      settings.phone = "0312-345678";
-      settings.internationalPhone = "+92 312 345678";
-      safeSet(STORAGE_KEYS.SETTINGS, settings);
+    if (!settings.whatsappNumber) {
+  settings.whatsappNumber = "923483498745";
+  settings.phone = "0348-3498745";
+  settings.internationalPhone = "+92 348 3498745";
+  safeSet(STORAGE_KEYS.SETTINGS, settings);
     }
     return settings;
   },
