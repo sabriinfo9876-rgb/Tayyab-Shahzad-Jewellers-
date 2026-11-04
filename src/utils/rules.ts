@@ -15,79 +15,102 @@ export function generateReferenceCode(
   return `TSJ-${type}-${timestamp}-${randomPart}`;
 }
 
-/**
- * Build a WhatsApp enquiry link for an individual product.
- */
+const DEFAULT_WHATSAPP_NUMBER = "923483498745";
+
+function whatsappUrl(number: string, message: string): string {
+  // WhatsApp's phone path accepts digits only. Leave the message encoding to this boundary.
+  const digits = number.replace(/\D/g, "");
+  const phone = digits || DEFAULT_WHATSAPP_NUMBER;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+/** Build a WhatsApp enquiry link for an individual product. */
 export function buildProductWhatsAppUrl(
   product: { name: string; code: string },
   selectedOptions?: Record<string, string>,
   quantity: number = 1,
-  whatsappNumber: string = "923483498745",
+  whatsappNumber: string = DEFAULT_WHATSAPP_NUMBER,
+  customerNotes?: string,
 ): string {
   const optionsText =
     selectedOptions && Object.keys(selectedOptions).length > 0
       ? Object.entries(selectedOptions)
-          .map(([k, v]) => `• ${k}: ${v}`)
+          .map(([key, value]) => `• ${key}: ${value}`)
           .join("\n")
       : "Standard specifications";
 
-  const text = [
-    `Assalam-o-Alaikum Tayyab Shahzad Jewellers,`,
-    ``,
-    `I would like to enquire about this piece:`,
-    `Piece: *${product.name}*`,
-    `Product Code: *${product.code}*`,
+  const message = [
+    "Assalam-o-Alaikum Tayyab Shahzad Jewellers,",
+    "",
+    "Mujhe is jewellery piece ke bare mein maloomat chahiye:",
+    `Product: ${product.name}`,
+    `Code: ${product.code}`,
     `Quantity: ${quantity}`,
-    `Selected Details:\n${optionsText}`,
-    ``,
-    `Please advise on viewing availability, crafting timeframe, and quotation.`,
-    `Thank you.`,
-  ].join("\n");
+    `Selected options:\n${optionsText}`,
+    customerNotes?.trim() ? `Notes: ${customerNotes.trim()}` : "",
+    "",
+    "Iski availability aur final price confirm kar dein.",
+  ]
+    .filter((line) => line !== "")
+    .join("\n");
 
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return whatsappUrl(whatsappNumber, message);
 }
 
-/**
- * Build a WhatsApp message for an entire Enquiry Bag.
- */
+/** Build a WhatsApp message for an entire Enquiry Bag. */
 export function buildBagWhatsAppUrl(
   items: BagItem[],
-  customer: { name: string; phone: string; city?: string },
+  customer: {
+    name: string;
+    phone: string;
+    city?: string;
+    occasion?: string;
+    targetDate?: string;
+    notes?: string;
+  },
   referenceCode: string,
-  whatsappNumber: string = "923483498745",
+  whatsappNumber: string = DEFAULT_WHATSAPP_NUMBER,
 ): string {
   const itemsText = items
-    .map((item, idx) => {
-      const opts = Object.entries(item.selectedOptions || {})
-        .map(([k, v]) => `${k}: ${v}`)
+    .map((item, index) => {
+      const options = Object.entries(item.selectedOptions || {})
+        .map(([key, value]) => `${key}: ${value}`)
         .join(", ");
-      return `${idx + 1}. *${item.name}* (${item.code}) × ${item.quantity}${opts ? ` [${opts}]` : ""}`;
+      return [
+        `${index + 1}. ${item.name}`,
+        `Code: ${item.code}`,
+        `Quantity: ${item.quantity}`,
+        options ? `Selected options: ${options}` : "",
+        item.customerNotes ? `Product notes: ${item.customerNotes}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
     })
-    .join("\n");
+    .join("\n\n");
 
-  const text = [
-    `Assalam-o-Alaikum Tayyab Shahzad Jewellers,`,
-    ``,
-    `I have saved an Enquiry Bag on your demo showcase:`,
-    `Reference: *${referenceCode}*`,
-    `Name: *${customer.name}*`,
-    `Contact: ${customer.phone}`,
+  const message = [
+    "Assalam-o-Alaikum Tayyab Shahzad Jewellers,",
+    "",
+    "I would like a quotation for the following Enquiry Bag:",
+    referenceCode ? `Enquiry reference: ${referenceCode}` : "",
+    customer.name ? `Customer name: ${customer.name}` : "",
+    customer.phone ? `Customer contact: ${customer.phone}` : "",
     customer.city ? `City: ${customer.city}` : "",
-    ``,
-    `Requested Pieces:\n${itemsText}`,
-    ``,
-    `Please share the quotation and consultation details.`,
-    `Thank you.`,
+    customer.occasion ? `Occasion: ${customer.occasion}` : "",
+    customer.targetDate ? `Target date: ${customer.targetDate}` : "",
+    "",
+    `Requested pieces:\n${itemsText}`,
+    customer.notes ? `\nCustomer notes: ${customer.notes}` : "",
+    "",
+    "Please share the quotation and consultation details.",
   ]
-    .filter(Boolean)
+    .filter((line) => line !== "")
     .join("\n");
 
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return whatsappUrl(whatsappNumber, message);
 }
 
-/**
- * Build a WhatsApp message for a Bespoke Custom Order request.
- */
+/** Build a WhatsApp message for a Bespoke Custom Order request. */
 export function buildCustomOrderWhatsAppUrl(
   data: {
     jewelleryType: string;
@@ -95,33 +118,36 @@ export function buildCustomOrderWhatsAppUrl(
     occasion?: string;
     description: string;
     approxBudget?: string;
+    targetDate?: string;
+    reference?: string;
     name: string;
     phone: string;
   },
   referenceCode: string,
-  whatsappNumber: string = "923483498745",
+  whatsappNumber: string = DEFAULT_WHATSAPP_NUMBER,
 ): string {
-  const text = [
-    `Assalam-o-Alaikum Tayyab Shahzad Jewellers,`,
-    ``,
-    `I would like to discuss a Bespoke Custom Jewellery Order:`,
-    `Reference: *${referenceCode}*`,
-    `Customer Name: *${data.name}*`,
-    `Contact: ${data.phone}`,
-    `Jewellery Type: *${data.jewelleryType}*`,
-    `Preferred Material: *${data.preferredMaterial}*`,
+  const message = [
+    "Assalam-o-Alaikum Tayyab Shahzad Jewellers,",
+    "",
+    "I would like to discuss a Bespoke Custom Jewellery Order:",
+    referenceCode ? `Reference: ${referenceCode}` : "",
+    data.name ? `Customer Name: ${data.name}` : "",
+    data.phone ? `Contact: ${data.phone}` : "",
+    data.jewelleryType ? `Jewellery Type: ${data.jewelleryType}` : "",
+    data.preferredMaterial ? `Preferred Material / Purity: ${data.preferredMaterial}` : "",
     data.occasion ? `Occasion: ${data.occasion}` : "",
-    data.approxBudget ? `Budget Range: ${data.approxBudget}` : "",
-    `Design Details: ${data.description}`,
-    ``,
-    `(Note: I have a reference design image ready to share directly in this chat.)`,
-    ``,
-    `Looking forward to your guidance.`,
+    data.approxBudget ? `Budget: ${data.approxBudget}` : "",
+    data.targetDate ? `Target Date: ${data.targetDate}` : "",
+    data.description ? `Design Requirements: ${data.description}` : "",
+    "",
+    "I can share a reference design image in this chat if required.",
+    "",
+    "Please advise on availability, final price and timeframe.",
   ]
-    .filter(Boolean)
+    .filter((line) => line !== "")
     .join("\n");
 
-  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+  return whatsappUrl(whatsappNumber, message);
 }
 
 /**
