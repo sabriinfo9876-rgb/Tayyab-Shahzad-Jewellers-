@@ -14,7 +14,7 @@ import {
 export const INITIAL_SETTINGS: StoreSettings = {
   brandName: "Tayyab Shahzad Jewellers",
   phone: "0348-3498745",
-  internationalPhone: "+92 348-3498745",
+  internationalPhone: "+92348-3498745",
   whatsappNumber: "92348-3498745",
   tiktokUrl: "https://www.tiktok.com/@tayyab.shahzad.jewellers",
   address: "", // Kept empty per brand constraints; configurable in admin
